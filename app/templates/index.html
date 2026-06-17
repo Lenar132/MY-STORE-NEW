@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - СкладПро{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Заголовок -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-white animate__animated animate__fadeInDown">
+            <i class="fas fa-cubes me-3"></i>СкладПро
+        </h1>
+        <p class="lead text-white-50 animate__animated animate__fadeInUp">
+            Современная система учета товаров на складе
+        </p>
+    </div>
+
+    {% if current_user.is_authenticated %}
+        <!-- Статистика (видна всем авторизованным) -->
+        <div class="row mb-5">
+            <div class="col-md-3 mb-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-boxes"></i>
+                    <div class="number">{{ products|length }}</div>
+                    <div class="label">Всего товаров</div>
+                    <div class="stats-footer">
+                        <i class="fas fa-arrow-up"></i> на складе
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-exchange-alt"></i>
+                    <div class="number">{{ movements|length }}</div>
+                    <div class="label">Операций</div>
+                    <div class="stats-footer">
+                        <i class="fas fa-clock"></i> за все время
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-weight-hanging"></i>
+                    <div class="number">{{ products|sum(attribute='quantity')|round(0) }}</div>
+                    <div class="label">Единиц товара</div>
+                    <div class="stats-footer">
+                        <i class="fas fa-cubes"></i> всего единиц
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-ruble-sign"></i>
+                    <div class="number">{{ "{:,.0f}".format(products|sum(attribute='price')) }} ₽</div>
+                    <div class="label">Общая стоимость</div>
+                    <div class="stats-footer">
+                        <i class="fas fa-chart-line"></i> общая сумма
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние товары и операции (только для администратора и менеджера) -->
+        {% if current_user.is_admin() or current_user.role == 'manager' %}
+        <div class="row">
+            <!-- Последние товары -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 animate__animated animate__fadeInLeft">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-box me-2"></i>Последние товары</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if products %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Название</th>
+                                            <th>Категория</th>
+                                            <th>Кол-во</th>
+                                            <th>Цена</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products[:5] %}
+                                        <tr>
+                                            <td>{{ product.name }}</td>
+                                            <td>{{ product.category or '-' }}</td>
+                                            <td>
+                                                <span class="badge {% if product.quantity > product.min_stock %}bg-success{% elif product.quantity > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ product.quantity }} {{ product.unit }}
+                                                </span>
+                                            </td>
+                                            <td>{{ product.price }} ₽</td
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-center py-4">
+                                <i class="fas fa-box-open fa-3x mb-3"></i><br>
+                                Нет товаров на складе
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('routes.products') }}" class="btn btn-outline-primary btn-sm">
+                            Все товары <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Последние операции -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 animate__animated animate__fadeInRight">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Последние операции</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if movements %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Товар</th>
+                                            <th>Тип</th>
+                                            <th>Кол-во</th>
+                                            <th>Дата</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for movement in movements %}
+                                        <tr>
+                                            <td class="{% if movement.quantity <= movement.product.min_stock %}table-warning{% endif %}">
+                                                {{ movement.product.name }}
+                                            </td>
+                                            <td class="{% if movement.quantity <= movement.product.min_stock %}table-warning{% endif %}">
+                                                {% if movement.type == 'приход' %}
+                                                    <span class="badge bg-success">Приход</span>
+                                                {% elif movement.type == 'расход' %}
+                                                    <span class="badge bg-danger">Расход</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Продажа</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="{% if movement.quantity <= movement.product.min_stock %}table-warning{% endif %}">
+                                                {{ movement.quantity }} {{ movement.product.unit }}
+                                            </td>
+                                            <td class="{% if movement.quantity <= movement.product.min_stock %}table-warning{% endif %}">
+                                                {{ movement.date.strftime('%d.%m.%Y') }}<br>
+                                                <small class="text-muted">{{ movement.date.strftime('%H:%M') }}</small>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-center py-4">
+                                <i class="fas fa-exchange-alt fa-3x mb-3"></i><br>
+                                Нет операций
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Для клиента и наблюдателя (без последних операций и товаров) -->
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Для просмотра последних операций и товаров обратитесь к менеджеру или администратору.
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Быстрые действия -->
+        {% if current_user.can_add_product() or current_user.can_sell() %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="mb-3"><i class="fas fa-bolt me-2"></i>Быстрые действия</h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if current_user.can_add_product() %}
+                            <a href="{{ url_for('routes.add_product') }}" class="btn btn-primary">
+                                <i class="fas fa-plus-circle me-2"></i>Добавить товар
+                            </a>
+                            {% endif %}
+                            {% if current_user.can_sell() %}
+                            <a href="{{ url_for('routes.movements') }}" class="btn btn-info">
+                                <i class="fas fa-exchange-alt me-2"></i>Новая операция
+                            </a>
+                            {% endif %}
+                            {% if current_user.can_view_reports() %}
+                            <a href="{{ url_for('routes.reports') }}" class="btn btn-warning">
+                                <i class="fas fa-chart-bar me-2"></i>Отчеты
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Для неавторизованных пользователей -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card text-center animate__animated animate__fadeInUp">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-warehouse fa-6x text-primary"></i>
+                        </div>
+                        <h2 class="mb-4">Добро пожаловать в СкладПро</h2>
+                        <p class="lead text-muted mb-4">
+                            Автоматизация учета товаров на складе с современным интерфейсом и мощным функционалом
+                        </p>
+                        <div class="row mb-5">
+                            <div class="col-md-4">
+                                <div class="p-3">
+                                    <i class="fas fa-boxes fa-3x text-primary mb-3"></i>
+                                    <h5>Учет товаров</h5>
+                                    <p class="text-muted">Полный контроль над остатками</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3">
+                                    <i class="fas fa-exchange-alt fa-3x text-success mb-3"></i>
+                                    <h5>Движения</h5>
+                                    <p class="text-muted">Приход, расход и продажи</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3">
+                                    <i class="fas fa-chart-pie fa-3x text-info mb-3"></i>
+                                    <h5>Отчеты</h5>
+                                    <p class="text-muted">Аналитика и статистика</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{{ url_for('routes.login') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Войти
+                            </a>
+                            <a href="{{ url_for('routes.register') }}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Регистрация
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.stats-footer {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    padding-top: 10px;
+}
+
+.stats-footer i {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}

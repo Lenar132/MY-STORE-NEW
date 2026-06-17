@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow animate__animated animate__fadeInUp">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i> Вход в систему</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control", placeholder="example@mail.ru") }}
+                        {% if form.email.errors %}
+                            {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control", placeholder="Пароль") }}
+                        {% if form.password.errors %}
+                            {% for error in form.password.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Войти
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('routes.forgot_password') }}" class="text-muted text-decoration-none small">
+                        <i class="fas fa-key me-1"></i>Забыли пароль?
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer text-center bg-transparent">
+                <span class="text-muted">Нет аккаунта?</span>
+                <a href="{{ url_for('routes.register') }}" class="text-primary">Зарегистрироваться</a>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

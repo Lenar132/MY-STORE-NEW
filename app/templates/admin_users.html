@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-users-cog"></i> Управление пользователями</h1>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Список пользователей</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Email</th>
+                            <th>Роль</th>
+                            <th>Дата регистрации</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('routes.admin_change_role', user_id=user.id) }}" class="d-inline">
+                                    <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" {% if user.id == current_user.id %}disabled{% endif %}>
+                                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Администратор</option>
+                                        <option value="director" {% if user.role == 'director' %}selected{% endif %}>Директор</option>
+                                        <option value="storekeeper" {% if user.role == 'storekeeper' %}selected{% endif %}>Кладовщик</option>
+                                        <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Менеджер</option>
+                                        <option value="accountant" {% if user.role == 'accountant' %}selected{% endif %}>Бухгалтер</option>
+                                        <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>Наблюдатель</option>
+                                        <option value="client" {% if user.role == 'client' %}selected{% endif %}>Клиент</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                            <td>
+                                {% if user.id != current_user.id %}
+                                <a href="{{ url_for('routes.admin_delete_user', id=user.id) }}" 
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Удалить пользователя {{ user.username }}?')">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </a>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Нет пользователей</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-select-sm {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    width: auto;
+    display: inline-block;
+}
+</style>
+{% endblock %}

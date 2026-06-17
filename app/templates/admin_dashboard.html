@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-crown"></i> Панель администратора</h1>
+    
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Пользователи</h5>
+                    <h2>{{ total_users }}</h2>
+                    <i class="fas fa-users fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Товары</h5>
+                    <h2>{{ total_products }}</h2>
+                    <i class="fas fa-box fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Операции</h5>
+                    <h2>{{ total_movements }}</h2>
+                    <i class="fas fa-exchange-alt fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Клиенты</h5>
+                    <h2>{{ clients }}</h2>
+                    <i class="fas fa-user fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика по ролям -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Распределение по ролям</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-2">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-danger">Админ</span>
+                                <h3>{{ admins }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-purple">Директор</span>
+                                <h3>{{ directors }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-warning">Кладовщик</span>
+                                <h3>{{ storekeepers }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-info">Менеджер</span>
+                                <h3>{{ managers }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-success">Бухгалтер</span>
+                                <h3>{{ accountants }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-secondary">Наблюдатель</span>
+                                <h3>{{ viewers }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Последние пользователи -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> Новые пользователи</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Имя</th>
+                                    <th>Email</th>
+                                    <th>Роль</th>
+                                    <th>Дата</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if user.role == 'admin' %}bg-danger
+                                            {% elif user.role == 'director' %}bg-purple
+                                            {% elif user.role == 'storekeeper' %}bg-warning
+                                            {% elif user.role == 'manager' %}bg-info
+                                            {% elif user.role == 'accountant' %}bg-success
+                                            {% elif user.role == 'viewer' %}bg-secondary
+                                            {% else %}bg-primary{% endif %}">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                    <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{{ url_for('routes.admin_users') }}" class="btn btn-outline-primary btn-sm">
+                        Все пользователи <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние движения -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Последние операции</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th>Тип</th>
+                                    <th>Кол-во</th>
+                                    <th>Пользователь</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movement in recent_movements %}
+                                <tr>
+                                    <td>{{ movement.product.name }}</td>
+                                    <td>
+                                        {% if movement.type == 'приход' %}
+                                            <span class="badge bg-success">Приход</span>
+                                        {% elif movement.type == 'расход' %}
+                                            <span class="badge bg-danger">Расход</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Продажа</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ movement.quantity }}</td>
+                                    <td>{{ movement.user.username }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

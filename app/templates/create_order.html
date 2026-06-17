@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Оформление заказа</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Товар:</strong> {{ product.name }}<br>
+                    <strong>Цена:</strong> {{ product.price }} ₽ за {{ product.unit }}<br>
+                    <strong>В наличии:</strong> {{ product.quantity }} {{ product.unit }}
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Количество ({{ product.unit }})</label>
+                        <input type="number" name="quantity" class="form-control" 
+                               step="0.01" min="0.01" max="{{ product.quantity }}" value="1" required>
+                        <small class="text-muted">Максимум: {{ product.quantity }} {{ product.unit }}</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Комментарий к заказу (необязательно)</label>
+                        <textarea name="comment" class="form-control" rows="3" 
+                                  placeholder="Укажите особые пожелания, цвет, размер и т.д."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Оформить заказ
+                        </button>
+                        <a href="{{ url_for('routes.products') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

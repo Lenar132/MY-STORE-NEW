@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-chart-bar"></i> Отчеты по складу</h1>
+        {% if current_user.is_authenticated and current_user.can_view_reports() %}
+        <a href="{{ url_for('routes.export_report') }}" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Экспорт в Excel
+        </a>
+        {% endif %}
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Всего товаров</h5>
+                    <h2>{{ products|length }}</h2>
+                    <i class="fas fa-boxes fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Общая стоимость</h5>
+                    <h2>{{ "{:,.0f}".format(total_value) }} ₽</h2>
+                    <i class="fas fa-ruble-sign fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Единиц товара</h5>
+                    <h2>{{ total_quantity }}</h2>
+                    <i class="fas fa-weight-hanging fa-3x position-absolute top-0 end-0 m-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Товары с низким остатком</h5>
+                </div>
+                <div class="card-body">
+                    {% if low_stock %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Наименование</th>
+                                        <th>Остаток</th>
+                                        <th>Мин. остаток</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in low_stock %}
+                                    <tr>
+                                        <td>{{ product.name }}</td>
+                                        <td><span class="badge bg-warning">{{ product.quantity }} {{ product.unit }}</span></td>
+                                        <td>{{ product.min_stock }} {{ product.unit }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i><br>
+                            Нет товаров с низким остатком
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Статистика операций</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-success">Приход</span>
+                                <h3>{{ incoming }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-danger">Расход</span>
+                                <h3>{{ outgoing }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-warning">Продажа</span>
+                                <h3>{{ sales }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <strong>Всего операций:</strong> {{ total_movements }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Детальный отчет по товарам</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Артикул</th>
+                            <th>Наименование</th>
+                            <th>Категория</th>
+                            <th>Производитель</th>
+                            <th>Количество</th>
+                            <th>Ед.</th>
+                            <th>Цена</th>
+                            <th>Общая стоимость</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.article or '-' }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category or '-' }}</td>
+                            <td>{{ product.manufacturer or '-' }}</td>
+                            <td>{{ product.quantity }}</td>
+                            <td>{{ product.unit }}</td>
+                            <td>{{ product.price }} ₽</td
+                            <td class="{% if product.quantity * product.price > 100000 %}table-warning{% endif %}">
+                                {{ "{:,.0f}".format(product.quantity * product.price) }} ₽
+                            </td
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Нет товаров на складе</p>
+                            </td
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="6">Итого:</th>
+                            <th>{{ total_quantity }} ед.</th>
+                            <th>{{ "{:,.0f}".format(total_value) }} ₽</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

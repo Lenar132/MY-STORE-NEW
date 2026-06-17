@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-shopping-cart"></i> Мои заказы</h1>
+    
+    {% if orders %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>№ заказа</th>
+                            <th>Товар</th>
+                            <th>Количество</th>
+                            <th>Статус</th>
+                            <th>Дата заказа</th>
+                            <th>Комментарий</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="{% if order.status == 'pending' %}table-warning{% endif %}">
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>{{ order.product.name }}</td>
+                            <td>{{ order.quantity }} {{ order.product.unit }}</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="badge bg-warning">⏳ Ожидает</span>
+                                {% elif order.status == 'approved' %}
+                                    <span class="badge bg-success">✅ Одобрен</span>
+                                {% elif order.status == 'rejected' %}
+                                    <span class="badge bg-danger">❌ Отклонён</span>
+                                {% elif order.status == 'completed' %}
+                                    <span class="badge bg-info">📦 Выполнен</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>{{ order.comment or '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle me-2"></i> У вас пока нет заказов
+    </div>
+    {% endif %}
+    
+    <div class="mt-3">
+        <a href="{{ url_for('routes.products') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Вернуться к товарам
+        </a>
+    </div>
+</div>
+{% endblock %}

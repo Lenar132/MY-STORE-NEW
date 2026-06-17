@@ -1,0 +1,290 @@
+/* ==================== ОСНОВНЫЕ СТИЛИ ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ==================== НАВИГАЦИЯ ==================== */
+.navbar {
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%) !important;
+}
+
+/* ==================== КАРТОЧКИ ==================== */
+.card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    overflow: hidden;
+    background: white;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    border-bottom: none;
+    padding: 1.2rem 1.5rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* ==================== КАРТОЧКИ СТАТИСТИКИ ==================== */
+.stats-card {
+    border-radius: 20px;
+    padding: 1.5rem;
+    color: white;
+    text-align: center;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card .number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.stats-card .label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+/* Цвета карточек статистики */
+.stats-card.products {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-card.operations {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stats-card.units {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stats-card.value {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+/* ==================== ТАБЛИЦЫ ==================== */
+.table {
+    margin-bottom: 0;
+    color: #495057;
+}
+
+.table thead th {
+    border-top: none;
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #4361ee;
+    padding: 1rem;
+}
+
+.table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* ==================== КНОПКИ ==================== */
+.btn {
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s;
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f8961e 0%, #f3722c 100%);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+/* ==================== ФОРМЫ ==================== */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    padding: 0.6rem 1rem;
+    transition: all 0.3s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+/* ==================== БЕЙДЖИ ==================== */
+.badge {
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, #f72585 0%, #b5179e 100%) !important;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, #f8961e 0%, #f3722c 100%) !important;
+    color: white;
+}
+
+.badge.bg-purple {
+    background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%) !important;
+    color: white;
+}
+
+/* ==================== ФУТЕР ==================== */
+.footer {
+    background: white;
+    border-top: 1px solid #e9ecef;
+    margin-top: auto;
+    padding: 1.5rem 0;
+}
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+@media (max-width: 768px) {
+    .stats-card .number {
+        font-size: 1.8rem;
+    }
+    
+    .stats-card i {
+        font-size: 2rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+}
+/* ==================== УЛУЧШЕНИЕ ЗАГОЛОВКА ==================== */
+.display-4 {
+    font-size: 3rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.display-4 i {
+    font-size: 3rem;
+    margin-right: 0.5rem;
+}
+
+.text-white {
+    color: #1e1e2f !important;
+}
+
+.text-white-50 {
+    color: #6c757d !important;
+}
+
+/* ==================== УМЕНЬШИТЬ КАРТОЧКИ ==================== */
+.stats-card {
+    padding: 1rem 0.8rem;
+    border-radius: 16px;
+}
+
+.stats-card i {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.stats-card .number {
+    font-size: 1.8rem;
+    margin: 0.25rem 0;
+}
+
+.stats-card .label {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+}

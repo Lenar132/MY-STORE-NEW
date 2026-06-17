@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-search"></i> Результаты поиска</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('routes.search') }}" method="GET" class="row g-3">
+                <div class="col-md-10">
+                    <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Поиск по названию или артикулу...">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Поиск
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if query %}
+        <h5>Найдено товаров: {{ products|length }}</h5>
+        
+        {% if products %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Артикул</th>
+                                <th>Наименование</th>
+                                <th>Категория</th>
+                                <th>Производитель</th>
+                                <th>Количество</th>
+                                <th>Ед.</th>
+                                <th>Цена</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td><strong>{{ product.article or '-' }}</strong></td>
+                                <td>{{ product.name }}</td>
+                                <td>{{ product.category or '-' }}</td>
+                                <td>{{ product.manufacturer or '-' }}</td>
+                                <td>
+                                    <span class="badge {% if product.quantity <= product.min_stock %}bg-warning{% else %}bg-success{% endif %}">
+                                        {{ product.quantity }}
+                                    </span>
+                                </td>
+                                <td>{{ product.unit }}</td>
+                                <td>{{ product.price }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Товары не найдены
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Складской учет{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Наш CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('routes.index') }}">
+                <i class="fas fa-cubes me-2"></i>
+                <span class="fw-bold">СкладПро</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('routes.index') }}">
+                            <i class="fas fa-home me-1"></i>Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('routes.products') }}">
+                            <i class="fas fa-box me-1"></i>Товары
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.can_sell() %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('routes.movements') }}">
+                                <i class="fas fa-exchange-alt me-1"></i>Операции
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if current_user.can_view_reports() %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('routes.reports') }}">
+                                <i class="fas fa-chart-pie me-1"></i>Отчеты
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- ЗАКАЗЫ ДЛЯ АДМИНА И МЕНЕДЖЕРА -->
+                        {% if current_user.is_admin() or current_user.role == 'manager' %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('routes.admin_orders') }}">
+                                <i class="fas fa-tasks me-1"></i>Заказы
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- АДМИН МЕНЮ -->
+                        {% if current_user.is_admin() %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog me-1"></i>Админ
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('routes.admin_dashboard') }}">Панель управления</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('routes.admin_users') }}">Пользователи</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <!-- Иконка уведомлений -->
+                        <li class="nav-item">
+                            <a class="nav-link text-white position-relative" href="{{ url_for('routes.notifications') }}">
+                                <i class="fas fa-bell"></i>
+                                <span id="notifications-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem; display: none;">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2">
+                                        <span class="initial">{{ current_user.username[0]|upper }}</span>
+                                    </div>
+                                    <span>{{ current_user.username }}</span>
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('routes.profile') }}">Профиль</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('routes.my_orders') }}">Мои заказы</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('routes.logout') }}">Выйти</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('routes.login') }}">Вход</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('routes.register') }}">Регистрация</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash сообщения -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Основной контент -->
+    <main class="container my-4 animate__animated animate__fadeIn">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer mt-auto py-4 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-primary"><i class="fas fa-cubes me-2"></i>СкладПро</h5>
+                    <p class="text-muted">Современная система учета товаров на складе</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        <i class="far fa-copyright me-1"></i>2026 Все права защищены
+                    </p>
+                    <p class="text-muted small">
+                        Разработка программного модуля для ВКР
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Наш JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Подтверждение удаления
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteMessage">Вы уверены, что хотите удалить этот товар?</p>
+                    <p class="text-muted small">Это действие нельзя отменить. Все данные о товаре будут потеряны.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Отмена
+                    </button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Удалить
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDeleteModal(productId, productName) {
+            document.getElementById('deleteMessage').innerHTML = 
+                'Вы уверены, что хотите удалить товар <strong>' + productName + '</strong>?';
+            document.getElementById('confirmDeleteBtn').href = '/product/delete/' + productId;
+            
+            var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            myModal.show();
+        }
+        
+        function updateNotificationsCount() {
+            fetch('/notifications/count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notifications-count');
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+        }
+        
+        updateNotificationsCount();
+        setInterval(updateNotificationsCount, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-user"></i> Профиль пользователя</h1>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Информация</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Имя:</strong> {{ current_user.username }}</p>
+                    <p><strong>Email:</strong> {{ current_user.email }}</p>
+                    <p><strong>Роль:</strong> 
+                        {% if current_user.role == 'admin' %}
+                            <span class="badge bg-danger">Администратор</span>
+                        {% elif current_user.role == 'director' %}
+                            <span class="badge bg-purple">Директор</span>
+                        {% elif current_user.role == 'storekeeper' %}
+                            <span class="badge bg-warning">Кладовщик</span>
+                        {% elif current_user.role == 'manager' %}
+                            <span class="badge bg-info">Менеджер</span>
+                        {% elif current_user.role == 'accountant' %}
+                            <span class="badge bg-success">Бухгалтер</span>
+                        {% elif current_user.role == 'viewer' %}
+                            <span class="badge bg-secondary">Наблюдатель</span>
+                        {% else %}
+                            <span class="badge bg-primary">Клиент</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Дата регистрации:</strong> {{ current_user.created_at.strftime('%d.%m.%Y') }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> История операций</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Товар</th>
+                                    <th>Тип</th>
+                                    <th>Количество</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movement in movements %}
+                                <tr>
+                                    <td>{{ movement.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td>{{ movement.product.name }}</td>
+                                    <td>
+                                        {% if movement.type == 'приход' %}
+                                            <span class="badge bg-success">Приход</span>
+                                        {% elif movement.type == 'расход' %}
+                                            <span class="badge bg-danger">Расход</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Продажа</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ movement.quantity }} {{ movement.product.unit }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">У вас пока нет операций</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-purple {
+    background-color: #6f42c1 !important;
+    color: white;
+}
+</style>
+{% endblock %}

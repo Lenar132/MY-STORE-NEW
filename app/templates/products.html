@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-box"></i> Товары на складе</h1>
+        {% if current_user.is_authenticated and current_user.can_add_product() %}
+        <a href="{{ url_for('routes.add_product') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Добавить товар
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Поиск -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('routes.products') }}" method="GET" class="row g-3">
+                <div class="col-md-10">
+                    <input type="text" name="search" class="form-control" value="{{ search_query or '' }}" 
+                           placeholder="Поиск по названию или артикулу...">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Поиск
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Артикул</th>
+                            <th>Наименование</th>
+                            <th>Категория</th>
+                            <th>Производитель</th>
+                            <th>Количество</th>
+                            <th>Ед.</th>
+                            <th>Цена</th>
+                            <th>Место</th>
+                            {% if current_user.is_authenticated %}
+                            <th>Действия</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="{% if product.quantity <= product.min_stock %}table-warning{% endif %}">
+                            <td><strong>{{ product.article or '-' }}</strong></td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category or '-' }}</td>
+                            <td>{{ product.manufacturer or '-' }}</td>
+                            <td class="{% if product.quantity <= product.min_stock %}table-warning{% endif %}">
+                                <span class="badge {% if product.quantity > product.min_stock %}bg-success{% else %}bg-warning{% endif %} fs-6">
+                                    {{ product.quantity }}
+                                </span>
+                            </td>
+                            <td>{{ product.unit }}</td>
+                            <td>{{ product.price }} ₽</td>
+                            <td>{{ product.location or '-' }}</td>
+                            {% if current_user.is_authenticated %}
+                            <td class="{% if product.quantity <= product.min_stock %}table-warning{% endif %}">
+                                <div class="btn-group" role="group">
+                                    
+                                    <!-- Быстрое изменение количества (для кладовщика и админа) -->
+                                    {% if current_user.can_add_product() %}
+                                    <form action="{{ url_for('routes.quick_change') }}" method="POST" class="d-inline">
+                                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                                        <div class="input-group input-group-sm" style="width: 140px;">
+                                            <input type="text" name="quantity" class="form-control form-control-sm" 
+                                                   placeholder="кол-во" value="1" style="min-width: 60px;">
+                                            <button type="submit" class="btn btn-success btn-sm" title="Приход (+)">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <button type="submit" formaction="{{ url_for('routes.quick_change') }}?type=minus" 
+                                                    class="btn btn-danger btn-sm" title="Расход (-)">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                    {% endif %}
+                                    
+                                    <!-- Кнопка редактирования (для кладовщика и админа) -->
+                                    {% if current_user.can_add_product() %}
+                                    <a href="{{ url_for('routes.edit_product', id=product.id) }}" class="btn btn-warning btn-sm ms-1" title="Редактировать">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <!-- Кнопка удаления (только для админа) -->
+                                    {% if current_user.is_admin() %}
+                                    <button type="button" class="btn btn-danger btn-sm ms-1" title="Удалить"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    onclick="showDeleteModal(this.getAttribute('data-product-id'), this.getAttribute('data-product-name'));">
+                                    <i class="fas fa-trash"></i>
+                                  </button>
+                                    {% endif %}
+                                    
+                                    <!-- Кнопка "Заказать" (только для клиента) -->
+                                    {% if current_user.role == 'client' %}
+                                    <a href="{{ url_for('routes.create_order', product_id=product.id) }}" class="btn btn-primary btn-sm ms-1" title="Заказать">
+                                        <i class="fas fa-shopping-cart"></i> Заказать
+                                    </a>
+                                    {% endif %}
+                                    
+                                </div>
+                            </td
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="{% if current_user.is_authenticated %}9{% else %}8{% endif %}" class="text-center py-4">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Нет товаров на складе</p>
+                                {% if current_user.is_authenticated and current_user.can_add_product() %}
+                                <a href="{{ url_for('routes.add_product') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Добавить первый товар
+                                </a>
+                                {% endif %}
+                             </td
+                         </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

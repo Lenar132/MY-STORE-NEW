@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-tasks"></i> Управление заказами</h1>
+    
+    {% if orders %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Клиент</th>
+                            <th>Email</th>
+                            <th>Товар</th>
+                            <th>Кол-во</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                            <th>Комментарий</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="{% if order.status == 'pending' %}table-warning{% endif %}">
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>{{ order.user.username }}</td>
+                            <td>{{ order.user.email }}</td>
+                            <td>{{ order.product.name }}</td>
+                            <td>{{ order.quantity }} {{ order.product.unit }}</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="badge bg-warning">⏳ Ожидает</span>
+                                {% elif order.status == 'approved' %}
+                                    <span class="badge bg-success">✅ Одобрен</span>
+                                {% elif order.status == 'rejected' %}
+                                    <span class="badge bg-danger">❌ Отклонён</span>
+                                {% elif order.status == 'completed' %}
+                                    <span class="badge bg-info">📦 Выполнен</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>{{ order.comment or '-' }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('routes.update_order_status', order_id=order.id) }}" class="d-inline">
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+                                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>⏳ Ожидает</option>
+                                        <option value="approved" {% if order.status == 'approved' %}selected{% endif %}>✅ Одобрить</option>
+                                        <option value="rejected" {% if order.status == 'rejected' %}selected{% endif %}>❌ Отклонить</option>
+                                        <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>📦 Выполнен</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle me-2"></i>
+        Нет заказов
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
