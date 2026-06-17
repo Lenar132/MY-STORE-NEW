@@ -3,53 +3,137 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
-        <div class="card shadow animate__animated animate__fadeInUp">
-            <div class="card-header bg-primary text-white text-center py-3">
-                <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i> Вход в систему</h4>
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-sign-in-alt"></i> Вход в систему</h4>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body">
+                <!-- БЛОК ДЛЯ FLASH-СООБЩЕНИЙ -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'message' else 'danger' }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
                 <form method="POST">
                     {{ form.hidden_tag() }}
                     
                     <div class="mb-3">
                         {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control", placeholder="example@mail.ru") }}
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Email") }}
+                        
+                        <!-- ОШИБКИ ДЛЯ ПОЛЯ EMAIL -->
                         {% if form.email.errors %}
-                            {% for error in form.email.errors %}
-                                <div class="text-danger small mt-1">{{ error }}</div>
-                            {% endfor %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                    <i class="fas fa-exclamation-circle"></i> {{ error }}<br>
+                                {% endfor %}
+                            </div>
                         {% endif %}
+                        <small class="form-text text-muted">Допустимые домены: mail.ru, yandex.ru, gmail.com и др.</small>
                     </div>
-                    
+
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control", placeholder="Пароль") }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Пароль") }}
+                        
+                        <!-- ОШИБКИ ДЛЯ ПОЛЯ ПАРОЛЬ -->
                         {% if form.password.errors %}
-                            {% for error in form.password.errors %}
-                                <div class="text-danger small mt-1">{{ error }}</div>
-                            {% endfor %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                    <i class="fas fa-exclamation-circle"></i> {{ error }}<br>
+                                {% endfor %}
+                            </div>
                         {% endif %}
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 py-2">
-                        <i class="fas fa-sign-in-alt me-2"></i>Войти
-                    </button>
+
+                    <button type="submit" class="btn btn-primary w-100">Войти</button>
                 </form>
-                
-                <hr>
-                
-                <div class="text-center">
-                    <a href="{{ url_for('routes.forgot_password') }}" class="text-muted text-decoration-none small">
-                        <i class="fas fa-key me-1"></i>Забыли пароль?
-                    </a>
-                </div>
             </div>
-            <div class="card-footer text-center bg-transparent">
-                <span class="text-muted">Нет аккаунта?</span>
-                <a href="{{ url_for('routes.register') }}" class="text-primary">Зарегистрироваться</a>
-                <br>
+            <div class="card-footer">
+                <div class="text-center mb-2">
+                    Нет аккаунта? <a href="{{ url_for('routes.register') }}">Зарегистрироваться</a>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted d-block mb-2"><strong>Тестовые пользователи:</strong></small>
+                    <!-- Каждая роль на отдельной строке -->
+                    <div class="test-users">
+                        <div class="user-row">
+                            <span class="badge bg-danger">admin</span>
+                            <span class="text-muted">Lenar@mail.ru / 123123</span>
+                        </div>
+                        <div class="user-row">
+                            <span class="badge bg-purple">director</span>
+                            <span class="text-muted">director@mail.ru / 123</span>
+                        </div>
+                        <div class="user-row">
+                            <span class="badge bg-warning">storekeeper</span>
+                            <span class="text-muted">storekeeper@mail.ru / 123</span>
+                        </div>
+                        <div class="user-row">
+                            <span class="badge bg-info">manager</span>
+                            <span class="text-muted">manager@mail.ru / 123</span>
+                        </div>
+                        <div class="user-row">
+                            <span class="badge bg-success">accountant</span>
+                            <span class="text-muted">accountant@mail.ru / 123</span>
+                        </div>
+                        <div class="user-row">
+                            <span class="badge bg-secondary">viewer</span>
+                            <span class="text-muted">viewer@mail.ru / 123</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.bg-purple {
+    background-color: #6f42c1 !important;
+    color: white;
+}
+
+.test-users {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.user-row .badge {
+    min-width: 85px;
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Стили для ошибок */
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+}
+</style>
 {% endblock %}
