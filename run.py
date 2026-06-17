@@ -1,4 +1,4 @@
-import subprocess
+
 import sys
 import os
 
@@ -54,7 +54,9 @@ def check_and_install_once():
 # Запускаем проверку только один раз (при первом запуске)
 if __name__ == '__main__':
     check_and_install_once()
-    
     from app import create_app
     app = create_app()
-    app.run(debug=True)
+    
+    # Вот эту строчку меняем
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
