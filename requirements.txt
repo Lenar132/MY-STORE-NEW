@@ -17,3 +17,5 @@ email-validator==2.2.0
 
 #Работа с Excel
 openpyxl
+
+gunicorn
